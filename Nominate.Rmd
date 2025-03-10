@@ -1,0 +1,76 @@
+---
+title: "Nominate"
+output: html_document
+date: "2025-03-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+help(package=dwnominate)
+```
+
+
+```{r}
+install.packages('pscl')
+install.packages("wnominate")
+```
+```{r}
+install.packages('remotes')
+remotes::install_github('wmay/dwnominate')
+```
+
+
+```{r}
+
+library('wnominate')
+```
+
+```{r}
+library('dwnominate')
+
+```
+
+
+
+```{r}
+US_congress <- read.csv("sparse_matrix_us.csv")
+DK_congress <- read.csv("sparse_matrix_denmark.csv")
+```
+
+
+```{r}
+US_congress <- as.matrix(US_congress)
+```
+
+
+```{r}
+ US_congress[1:5,1:6]
+```
+
+```{r}
+rc <- list(rollcall(US_congress, yea=c(1), nay=(2), missing = c(0)),rollcall(US_congress, yea=c(1), nay=(2), missing = c(0)),rollcall(US_congress, yea=c(1), nay=(2), missing = c(0)),rollcall(US_congress, yea=c(1), nay=(2), missing = c(0)),rollcall(US_congress, yea=c(1), nay=(2), missing = c(0)))
+```
+
+```{r}
+results <- dwnominate(rc)
+```
+
+
+```{r}
+results_us <- wnominate(rc, polarity = c(1,1))
+```
+```{r}
+summary(results_us)
+```
+
+
+```{r}
+write.csv(results_us$legislators, "Nom_sim.csv")
+```
+
+
+
+
+
