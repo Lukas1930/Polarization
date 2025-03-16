@@ -38,16 +38,12 @@ con113 <- read.csv("data/USA/Sparsematrix/congress113_matrix_with_ids.csv", head
 ```
 
 
-```{r}
-con118
-```
-
 
 ```{r}
 
-# Extract IDs (first column) and voting data (remaining columns)
+
 con118_ids <- con118[, 1]
-con118_votes <- as.matrix(con118[, -1])
+con118_votes <- as.matrix(con118[, 2:900])
 
 con117_ids <- con117[, 1]
 con117_votes <- as.matrix(con117[, -1])
@@ -93,13 +89,13 @@ aligned_con116 <- align_matrix_fixed(con116_ids, con116_votes, all_ids)
 aligned_con115 <- align_matrix_fixed(con115_ids, con115_votes, all_ids)
 aligned_con114 <- align_matrix_fixed(con114_ids, con114_votes, all_ids)
 aligned_con113 <- align_matrix_fixed(con113_ids, con113_votes, all_ids)
-
-
-
 ```
 ```{r}
-aligned_con117
+con118_votes
 ```
+
+
+
 
 ```{r}
 # First, let's check the dimensions of the original data
@@ -159,20 +155,20 @@ cat("aligned_con116:", dim(aligned_con116_only), "\n")
 cat("aligned_con115:", dim(aligned_con115_only), "\n")
 cat("aligned_con114:", dim(aligned_con114_only), "\n")
 cat("aligned_con113:", dim(aligned_con113_only), "\n")
-aligned_con117_only
+
 ```
 
 
 ```{r}
 # Create legis.data with party info
 legis_data <- data.frame(
-  id = con117_legislators,
-  party = rep(1, length(con117_legislators))  # Placeholder for party
+  id = con118_legislators,
+  party = rep(1, length(con118_legislators))  # Placeholder for party
 )
 rownames(legis_data) <- 1:nrow(legis_data)
 
 # Create rollcall objects with only the Congress 117 legislators
-rc_con117_only <- list(
+rc_con118_only <- list(
   rollcall(aligned_con117_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 117"),
   rollcall(aligned_con116_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 116"),
   rollcall(aligned_con115_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 115"),
@@ -181,12 +177,12 @@ rc_con117_only <- list(
 )
 
 # Run DW-NOMINATE with only the Congress 117 legislators
-results_con117_only <- dwnominate(rc_con117_only, polarity=c(1,1), dims=2)
+results_con118_only <- dwnominate(rc_con118_only, polarity=c(1,1), dims=2)
 
 # Create a mapping of numeric IDs to original IDs
-id_mapping_con117 <- data.frame(
-  numeric_id = 1:length(con117_legislators),
-  original_id = con117_legislators
+id_mapping_con118 <- data.frame(
+  numeric_id = 1:length(con118_legislators),
+  original_id = con118_legislators
 )
 ```
 
