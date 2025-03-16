@@ -43,8 +43,8 @@ con113 <- read.csv("congress113_matrix_with_ids.csv", header=FALSE)
 ```{r}
 
 # Extract IDs (first column) and voting data (remaining columns)
-con118_ids <- con117[, 1]
-con118_votes <- as.matrix(con117[, -1])
+con118_ids <- con118[, 1]
+con118_votes <- as.matrix(con118[, -1])
 
 con117_ids <- con117[, 1]
 con117_votes <- as.matrix(con117[, -1])
@@ -109,123 +109,8 @@ cat("aligned_con114:", dim(aligned_con114), "\n")
 cat("aligned_con113:", dim(aligned_con113), "\n")
 ```
 
-```{r}
-# Modified alignment approach
-# First, create a unified dataframe with IDs and congress indicators
-library(dplyr)
 
-# Create a more robust alignment function
-align_matrix_fixed <- function(ids, votes, all_ids) {
-  # Create a matrix of zeros (missing values)
-  aligned_matrix <- matrix(0, nrow=length(all_ids), ncol=ncol(votes))
-  
-  # Find positions of each ID in the all_ids vector
-  for (i in 1:length(ids)) {
-    # Find where this ID appears in the all_ids vector
-    pos <- which(all_ids == ids[i])
-    # If found, copy the voting record
-    if (length(pos) == 1) {
-      aligned_matrix[pos, ] <- votes[i, ]
-    }
-  }
-  
-  return(aligned_matrix)
-}
 
-# Apply the fixed alignment function
-aligned_con117 <- align_matrix_fixed(con117_ids, con117_votes, all_ids)
-aligned_con116 <- align_matrix_fixed(con116_ids, con116_votes, all_ids)
-aligned_con115 <- align_matrix_fixed(con115_ids, con115_votes, all_ids)
-aligned_con114 <- align_matrix_fixed(con114_ids, con114_votes, all_ids)
-aligned_con113 <- align_matrix_fixed(con113_ids, con113_votes, all_ids)
-
-# Check if any of the aligned matrices have zero rows
-cat("Check for zero dimensions:\n")
-cat("aligned_con117:", sum(rowSums(aligned_con117) > 0), "non-zero rows\n")
-cat("aligned_con116:", sum(rowSums(aligned_con116) > 0), "non-zero rows\n")
-cat("aligned_con115:", sum(rowSums(aligned_con115) > 0), "non-zero rows\n")
-cat("aligned_con114:", sum(rowSums(aligned_con114) > 0), "non-zero rows\n")
-cat("aligned_con113:", sum(rowSums(aligned_con113) > 0), "non-zero rows\n")
-
-```
-```{r}
-# Calculate the number of votes for each legislator in each congress
-vote_counts <- list()
-for(i in 1:length(rc)) {
-  vote_matrix <- rc[[i]]$votes
-  vote_counts[[i]] <- rowSums(vote_matrix != 0)  # Count non-missing votes
-}
-
-# Check which legislators have very few votes
-low_voters <- data.frame(
-  id = all_ids,
-  con117 = vote_counts[[1]],
-  con116 = vote_counts[[2]],
-  con115 = vote_counts[[3]],
-  con114 = vote_counts[[4]],
-  con113 = vote_counts[[5]]
-)
-
-# Print legislators with very few votes
-print(low_voters[rowSums(low_voters[,2:6]) < 20, ])
-
-# Remove legislators with too few votes
-min_votes <- 20  # Adjust as needed
-keep_legislators <- rowSums(low_voters[,2:6]) >= min_votes
-filtered_ids <- all_ids[keep_legislators]
-
-# Re-create aligned matrices with only the filtered legislators
-# [... repeat alignment code with filtered_ids instead of all_ids ...]
-```
-```{r}
-# Remove legislators with very few votes
-min_votes <- 20  # Minimum number of votes required
-keep_legislators <- rowSums(data.frame(
-  con117 = vote_counts[[1]],
-  con116 = vote_counts[[2]],
-  con115 = vote_counts[[3]],
-  con114 = vote_counts[[4]],
-  con113 = vote_counts[[5]]
-)) >= min_votes
-
-# Filter the IDs to remove legislators with few votes
-filtered_ids <- all_ids[keep_legislators]
-cat("Number of legislators after filtering:", length(filtered_ids), "\n")
-
-# Re-create aligned matrices with only the filtered legislators
-aligned_con117_filtered <- align_matrix_fixed(con117_ids, con117_votes, filtered_ids)
-aligned_con116_filtered <- align_matrix_fixed(con116_ids, con116_votes, filtered_ids)
-aligned_con115_filtered <- align_matrix_fixed(con115_ids, con115_votes, filtered_ids)
-aligned_con114_filtered <- align_matrix_fixed(con114_ids, con114_votes, filtered_ids)
-aligned_con113_filtered <- align_matrix_fixed(con113_ids, con113_votes, filtered_ids)
-
-# Check dimensions after filtering
-cat("Filtered dimensions:\n")
-cat("aligned_con117:", dim(aligned_con117_filtered), "\n")
-cat("aligned_con116:", dim(aligned_con116_filtered), "\n")
-cat("aligned_con115:", dim(aligned_con115_filtered), "\n")
-cat("aligned_con114:", dim(aligned_con114_filtered), "\n")
-cat("aligned_con113:", dim(aligned_con113_filtered), "\n")
-
-# Create legis.data with legislator IDs
-legis_names <- data.frame(id = filtered_ids)
-rownames(legis_names) <- 1:nrow(legis_names)
-
-# Create rollcall objects with filtered data
-rc_filtered <- list(
-  rollcall(aligned_con117_filtered, yea=c(1), nay=c(2), missing=c(0),
-           legis.names=rownames(legis_names), legis.data=legis_names),
-  rollcall(aligned_con116_filtered, yea=c(1), nay=c(2), missing=c(0),
-           legis.names=rownames(legis_names), legis.data=legis_names),
-  rollcall(aligned_con115_filtered, yea=c(1), nay=c(2), missing=c(0),
-           legis.names=rownames(legis_names), legis.data=legis_names),
-  rollcall(aligned_con114_filtered, yea=c(1), nay=c(2), missing=c(0),
-           legis.names=rownames(legis_names), legis.data=legis_names),
-  rollcall(aligned_con113_filtered, yea=c(1), nay=c(2), missing=c(0),
-           legis.names=rownames(legis_names), legis.data=legis_names)
-)
-
-```
 ```{r}
 # After filtering out legislators with few votes, let's add party information
 
@@ -236,91 +121,9 @@ party_data <- data.frame(
   party = rep(1, length(filtered_ids))
 )
 
-# Create rollcall objects with party information
-rc_filtered <- list()
-for (i in 1:5) {
-  # Select the appropriate aligned matrix
-  if (i == 1) matrix_data <- aligned_con117_filtered
-  if (i == 2) matrix_data <- aligned_con116_filtered
-  if (i == 3) matrix_data <- aligned_con115_filtered
-  if (i == 4) matrix_data <- aligned_con114_filtered
-  if (i == 5) matrix_data <- aligned_con113_filtered
-  
-  # Create legis.data with both ID and party information
-  legis_data <- data.frame(
-    id = filtered_ids,
-    party = party_data$party
-  )
-  rownames(legis_data) <- 1:nrow(legis_data)
-  
-  # Create the rollcall object with the party info
-  rc_filtered[[i]] <- rollcall(
-    matrix_data,
-    yea = c(1),
-    nay = c(2),
-    missing = c(0),
-    legis.data = legis_data,
-    desc = paste("Congress", 113 + i - 1)
-  )
-}
 
 ```
-```{r}
-# Since we have more than 660 legislators, we need to further filter
-# Let's focus on legislators who appear in the most congresses
 
-# Count congress appearances for each legislator
-appearance_counts <- data.frame(
-  id = filtered_ids,
-  con117 = filtered_ids %in% con117_ids,
-  con116 = filtered_ids %in% con116_ids,
-  con115 = filtered_ids %in% con115_ids,
-  con114 = filtered_ids %in% con114_ids,
-  con113 = filtered_ids %in% con113_ids
-)
-
-# Calculate total appearances
-appearance_counts$total <- rowSums(appearance_counts[, 2:6])
-
-# Order by number of appearances (most frequent first)
-appearance_counts <- appearance_counts[order(-appearance_counts$total), ]
-
-# Take only the top 660 legislators
-top_legislators <- appearance_counts$id[1:450]
-cat("Selected top", length(top_legislators), "most frequent legislators\n")
-
-# Re-align matrices with only these legislators
-aligned_con117_top <- align_matrix_fixed(con117_ids, con117_votes, top_legislators)
-aligned_con116_top <- align_matrix_fixed(con116_ids, con116_votes, top_legislators)
-aligned_con115_top <- align_matrix_fixed(con115_ids, con115_votes, top_legislators)
-aligned_con114_top <- align_matrix_fixed(con114_ids, con114_votes, top_legislators)
-aligned_con113_top <- align_matrix_fixed(con113_ids, con113_votes, top_legislators)
-
-# Create legis.data with party info
-legis_data <- data.frame(
-  id = top_legislators,
-  party = rep(1, length(top_legislators))  # Placeholder for party
-)
-rownames(legis_data) <- 1:nrow(legis_data)
-
-# Create new rollcall objects with the top legislators
-rc_top <- list(
-  rollcall(aligned_con117_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 117"),
-  rollcall(aligned_con116_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 116"),
-  rollcall(aligned_con115_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 115"),
-  rollcall(aligned_con114_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 114"),
-  rollcall(aligned_con113_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 113")
-)
-
-# Run DW-NOMINATE with the top legislators
-results <- dwnominate(rc_top, polarity=c(1,1),dims=2)
-
-```
 
 
 ```{r}
@@ -375,16 +178,11 @@ rownames(legis_data) <- 1:nrow(legis_data)
 
 # Create rollcall objects with only the Congress 117 legislators
 rc_con117_only <- list(
-  rollcall(aligned_con117_only, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 117"),
-  rollcall(aligned_con116_only, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 116"),
-  rollcall(aligned_con115_only, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 115"),
-  rollcall(aligned_con114_only, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 114"),
-  rollcall(aligned_con113_only, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 113")
+  rollcall(aligned_con117_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 117"),
+  rollcall(aligned_con116_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 116"),
+  rollcall(aligned_con115_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 115"),
+  rollcall(aligned_con114_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 114"),
+  rollcall(aligned_con113_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 113")
 )
 
 # Run DW-NOMINATE with only the Congress 117 legislators
