@@ -12,40 +12,22 @@ help(package=dwnominate)
 ```
 ```{r}
 install.packages('dplyr')
-```
-
-
-```{r}
 install.packages('pscl')
 install.packages("wnominate")
-```
-```{r}
 install.packages('remotes')
 remotes::install_github('wmay/dwnominate')
 ```
 
 
+
+
 ```{r}
 
 library('wnominate')
-```
-
-```{r}
 library('dwnominate')
-
 ```
 
 
-
-```{r}
-US_congress1 <- read.csv("data/USA/Sparsematrix/H118_sparse_matrix.csv")
-US_congress2 <- read.csv("data/USA/Sparsematrix/H117_sparse_matrix.csv")
-US_congress3 <- read.csv("data/USA/Sparsematrix/H116_sparse_matrix.csv")
-US_congress4 <- read.csv("data/USA/Sparsematrix/H115_sparse_matrix.csv")
-US_congress5 <- read.csv("data/USA/Sparsematrix/H114_sparse_matrix.csv")
-US_congress6 <- read.csv("data/USA/Sparsematrix/H113_sparse_matrix.csv")
-DK_congress <- read.csv("sparse_matrix_denmark.csv")
-```
 ```{r}
 con118 <- read.csv("congress118_matrix_with_ids.csv", header=FALSE)
 con117 <- read.csv("congress117_matrix_with_ids.csv", header=FALSE)
@@ -56,61 +38,6 @@ con113 <- read.csv("congress113_matrix_with_ids.csv", header=FALSE)
 ```
 
 
-```{r}
-US_congress1 <- as.matrix(US_congress1)
-US_congress2 <- as.matrix(US_congress2)
-US_congress3 <- as.matrix(US_congress3)
-US_congress4 <- as.matrix(US_congress4)
-US_congress5 <- as.matrix(US_congress5)
-US_congress6 <- as.matrix(US_congress6)
-
-```
-
-
-```{r}
- US_congress1[1:5,1:6]
- US_congress2[1:5,1:6]
- US_congress3[1:5,1:6]
- US_congress4[1:5,1:6]
- US_congress5[1:5,1:6]
- US_congress6[1:5,1:6]
- 
-```
-
-```{r}
-
-rc <- list(
-  rollcall(US_congress1, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(US_congress2, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(US_congress3, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(US_congress4, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(US_congress5, yea=c(1), nay=c(2), missing=c(0))
-)
-```
-
-```{r}
-head(rownames(US_congress1))
-head(rownames(US_congress2))
-
-```
-
-
-```{r}
-results <- dwnominate(rc)
-```
-
-
-```{r}
-results_us <- wnominate(rc, polarity = c(1,1))
-```
-```{r}
-summary(results_us)
-```
-
-
-```{r}
-write.csv(results_us$legislators, "Nom_sim.csv")
-```
 
 
 ```{r}
@@ -135,7 +62,7 @@ con113_ids <- con113[, 1]
 con113_votes <- as.matrix(con113[, -1])
 
 # Create a unified set of all legislators across all congresses
-all_ids <- unique(c(con117_ids, con116_ids, con115_ids, con114_ids, con113_ids))
+all_ids <- unique(c(con118_ids,con117_ids, con116_ids, con115_ids, con114_ids, con113_ids))
 
 # Function to align a congress matrix to the unified ID list
 align_matrix <- function(ids, votes, all_ids) {
@@ -148,28 +75,21 @@ align_matrix <- function(ids, votes, all_ids) {
 }
 
 # Align all congress matrices
+aligned_con118 <- align_matrix(con118_ids, con118_votes, all_ids)
 aligned_con117 <- align_matrix(con117_ids, con117_votes, all_ids)
 aligned_con116 <- align_matrix(con116_ids, con116_votes, all_ids)
 aligned_con115 <- align_matrix(con115_ids, con115_votes, all_ids)
 aligned_con114 <- align_matrix(con114_ids, con114_votes, all_ids)
 aligned_con113 <- align_matrix(con113_ids, con113_votes, all_ids)
 
-# Create rollcall objects with aligned matrices
-rc <- list(
-  rollcall(aligned_con117, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con116, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con115, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con114, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con113, yea=c(1), nay=c(2), missing=c(0))
-)
 
-# Now run DW-NOMINATE
-results <- dwnominate(rc)
+
 ```
 
 ```{r}
 # First, let's check the dimensions of the original data
 cat("Original dimensions:\n")
+cat("con118:", dim(con118_votes), "\n")
 cat("con117:", dim(con117_votes), "\n")
 cat("con116:", dim(con116_votes), "\n")
 cat("con115:", dim(con115_votes), "\n")
@@ -181,7 +101,7 @@ cat("Number of unique IDs:", length(all_ids), "\n")
 
 # Let's check the dimensions after alignment
 cat("Aligned dimensions:\n")
-cat("aligned_con117:", dim(aligned_con118), "\n")
+cat("aligned_con118:", dim(aligned_con118), "\n")
 cat("aligned_con117:", dim(aligned_con117), "\n")
 cat("aligned_con116:", dim(aligned_con116), "\n")
 cat("aligned_con115:", dim(aligned_con115), "\n")
@@ -226,17 +146,6 @@ cat("aligned_con116:", sum(rowSums(aligned_con116) > 0), "non-zero rows\n")
 cat("aligned_con115:", sum(rowSums(aligned_con115) > 0), "non-zero rows\n")
 cat("aligned_con114:", sum(rowSums(aligned_con114) > 0), "non-zero rows\n")
 cat("aligned_con113:", sum(rowSums(aligned_con113) > 0), "non-zero rows\n")
-
-# Create rollcall objects with aligned matrices
-rc <- list(
-  rollcall(aligned_con117, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con116, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con115, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con114, yea=c(1), nay=c(2), missing=c(0)),
-  rollcall(aligned_con113, yea=c(1), nay=c(2), missing=c(0))
-)
-
-# Now run DW-NOMINATE
 
 ```
 ```{r}
@@ -316,8 +225,6 @@ rc_filtered <- list(
            legis.names=rownames(legis_names), legis.data=legis_names)
 )
 
-# Try running DW-NOMINATE with additional parameters
-results <- dwnominate(rc_filtered, polarity=c(1,1))
 ```
 ```{r}
 # After filtering out legislators with few votes, let's add party information
@@ -357,8 +264,6 @@ for (i in 1:5) {
   )
 }
 
-# Try running DW-NOMINATE with additional parameters
-results <- dwnominate(rc_filtered, polarity = c(1, 1))
 ```
 ```{r}
 # Since we have more than 660 legislators, we need to further filter
@@ -367,11 +272,11 @@ results <- dwnominate(rc_filtered, polarity = c(1, 1))
 # Count congress appearances for each legislator
 appearance_counts <- data.frame(
   id = filtered_ids,
-  con118 = filtered_ids %in% con118_ids,
   con117 = filtered_ids %in% con117_ids,
   con116 = filtered_ids %in% con116_ids,
   con115 = filtered_ids %in% con115_ids,
-  con114 = filtered_ids %in% con114_ids
+  con114 = filtered_ids %in% con114_ids,
+  con113 = filtered_ids %in% con113_ids
 )
 
 # Calculate total appearances
@@ -381,15 +286,15 @@ appearance_counts$total <- rowSums(appearance_counts[, 2:6])
 appearance_counts <- appearance_counts[order(-appearance_counts$total), ]
 
 # Take only the top 660 legislators
-top_legislators <- appearance_counts$id[1:660]
+top_legislators <- appearance_counts$id[1:450]
 cat("Selected top", length(top_legislators), "most frequent legislators\n")
 
 # Re-align matrices with only these legislators
-aligned_con117_top <- align_matrix_fixed(con118_ids, con118_votes, top_legislators)
-aligned_con116_top <- align_matrix_fixed(con117_ids, con117_votes, top_legislators)
-aligned_con115_top <- align_matrix_fixed(con116_ids, con116_votes, top_legislators)
-aligned_con114_top <- align_matrix_fixed(con115_ids, con115_votes, top_legislators)
-aligned_con113_top <- align_matrix_fixed(con114_ids, con114_votes, top_legislators)
+aligned_con117_top <- align_matrix_fixed(con117_ids, con117_votes, top_legislators)
+aligned_con116_top <- align_matrix_fixed(con116_ids, con116_votes, top_legislators)
+aligned_con115_top <- align_matrix_fixed(con115_ids, con115_votes, top_legislators)
+aligned_con114_top <- align_matrix_fixed(con114_ids, con114_votes, top_legislators)
+aligned_con113_top <- align_matrix_fixed(con113_ids, con113_votes, top_legislators)
 
 # Create legis.data with party info
 legis_data <- data.frame(
@@ -400,15 +305,15 @@ rownames(legis_data) <- 1:nrow(legis_data)
 
 # Create new rollcall objects with the top legislators
 rc_top <- list(
-  rollcall(aligned_con118_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 117"),
   rollcall(aligned_con117_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 116"),
+           legis.data=legis_data, desc="Congress 117"),
   rollcall(aligned_con116_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 115"),
+           legis.data=legis_data, desc="Congress 116"),
   rollcall(aligned_con115_top, yea=c(1), nay=c(2), missing=c(0), 
-           legis.data=legis_data, desc="Congress 114"),
+           legis.data=legis_data, desc="Congress 115"),
   rollcall(aligned_con114_top, yea=c(1), nay=c(2), missing=c(0), 
+           legis.data=legis_data, desc="Congress 114"),
+  rollcall(aligned_con113_top, yea=c(1), nay=c(2), missing=c(0), 
            legis.data=legis_data, desc="Congress 113")
 )
 
@@ -416,9 +321,7 @@ rc_top <- list(
 results <- dwnominate(rc_top, polarity=c(1,1),dims=2)
 
 ```
-```{r}
-install.packages('reshape2')
-```
+
 
 ```{r}
 # Get the legislator coordinates
@@ -444,5 +347,59 @@ head(legislator_mapping)
 write.csv(results$legislators, "dwnominate_results.csv", row.names = FALSE)
 write.csv(legislator_mapping, "legislator_id_mapping.csv", row.names = FALSE)
 
+```
+
+```{r}
+# Select only the legislators from Congress 117
+con117_legislators <- con117_ids
+cat("Number of legislators in Congress 117:", length(con117_legislators), "\n")
+
+# If there are more than 450, take only the first 450
+if (length(con117_legislators) > 450) {
+  con117_legislators <- con117_legislators[1:450]
+}
+
+# Re-align matrices with only these legislators
+aligned_con117_only <- align_matrix_fixed(con117_ids, con117_votes, con117_legislators)
+aligned_con116_only <- align_matrix_fixed(con116_ids, con116_votes, con117_legislators)
+aligned_con115_only <- align_matrix_fixed(con115_ids, con115_votes, con117_legislators)
+aligned_con114_only <- align_matrix_fixed(con114_ids, con114_votes, con117_legislators)
+aligned_con113_only <- align_matrix_fixed(con113_ids, con113_votes, con117_legislators)
+
+# Create legis.data with party info
+legis_data <- data.frame(
+  id = con117_legislators,
+  party = rep(1, length(con117_legislators))  # Placeholder for party
+)
+rownames(legis_data) <- 1:nrow(legis_data)
+
+# Create rollcall objects with only the Congress 117 legislators
+rc_con117_only <- list(
+  rollcall(aligned_con117_only, yea=c(1), nay=c(2), missing=c(0), 
+           legis.data=legis_data, desc="Congress 117"),
+  rollcall(aligned_con116_only, yea=c(1), nay=c(2), missing=c(0), 
+           legis.data=legis_data, desc="Congress 116"),
+  rollcall(aligned_con115_only, yea=c(1), nay=c(2), missing=c(0), 
+           legis.data=legis_data, desc="Congress 115"),
+  rollcall(aligned_con114_only, yea=c(1), nay=c(2), missing=c(0), 
+           legis.data=legis_data, desc="Congress 114"),
+  rollcall(aligned_con113_only, yea=c(1), nay=c(2), missing=c(0), 
+           legis.data=legis_data, desc="Congress 113")
+)
+
+# Run DW-NOMINATE with only the Congress 117 legislators
+results_con117_only <- dwnominate(rc_con117_only, polarity=c(1,1), dims=2)
+
+# Create a mapping of numeric IDs to original IDs
+id_mapping_con117 <- data.frame(
+  numeric_id = 1:length(con117_legislators),
+  original_id = con117_legislators
+)
+
+# Save the mapping
+write.csv(id_mapping_con117, "legislator_id_mapping_con117_only.csv", row.names = FALSE)
+
+# Save the results
+write.csv(results_con117_only$legislators, "dwnominate_con117_only_results.csv", row.names = FALSE)
 ```
 
