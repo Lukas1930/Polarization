@@ -29,15 +29,18 @@ library('dwnominate')
 
 
 ```{r}
-con118 <- read.csv("congress118_matrix_with_ids.csv", header=FALSE)
-con117 <- read.csv("congress117_matrix_with_ids.csv", header=FALSE)
-con116 <- read.csv("congress116_matrix_with_ids.csv", header=FALSE)
-con115 <- read.csv("congress115_matrix_with_ids.csv", header=FALSE)
-con114 <- read.csv("congress114_matrix_with_ids.csv", header=FALSE)
-con113 <- read.csv("congress113_matrix_with_ids.csv", header=FALSE)
+con118 <- read.csv("data/USA/Sparsematrix/congress118_matrix_with_ids.csv", header=FALSE)
+con117 <- read.csv("data/USA/Sparsematrix/congress117_matrix_with_ids.csv", header=FALSE)
+con116 <- read.csv("data/USA/Sparsematrix/congress116_matrix_with_ids.csv", header=FALSE)
+con115 <- read.csv("data/USA/Sparsematrix/congress115_matrix_with_ids.csv", header=FALSE)
+con114 <- read.csv("data/USA/Sparsematrix/congress114_matrix_with_ids.csv", header=FALSE)
+con113 <- read.csv("data/USA/Sparsematrix/congress113_matrix_with_ids.csv", header=FALSE)
 ```
 
 
+```{r}
+con118
+```
 
 
 ```{r}
@@ -65,25 +68,37 @@ con113_votes <- as.matrix(con113[, -1])
 all_ids <- unique(c(con118_ids,con117_ids, con116_ids, con115_ids, con114_ids, con113_ids))
 
 # Function to align a congress matrix to the unified ID list
-align_matrix <- function(ids, votes, all_ids) {
-  aligned_matrix <- matrix(0, nrow=length(all_ids), ncol=ncol(votes))  # 0 for missing
-  match_indices <- match(ids, all_ids)
+align_matrix_fixed <- function(ids, votes, all_ids) {
+  # Create a matrix of zeros (missing values)
+  aligned_matrix <- matrix(0, nrow=length(all_ids), ncol=ncol(votes))
+  
+  # Find positions of each ID in the all_ids vector
   for (i in 1:length(ids)) {
-    aligned_matrix[match_indices[i], ] <- votes[i, ]
+    # Find where this ID appears in the all_ids vector
+    pos <- which(all_ids == ids[i])
+    # If found, copy the voting record
+    if (length(pos) == 1) {
+      aligned_matrix[pos, ] <- votes[i, ]
+    }
   }
+  
   return(aligned_matrix)
 }
 
+
 # Align all congress matrices
-aligned_con118 <- align_matrix(con118_ids, con118_votes, all_ids)
-aligned_con117 <- align_matrix(con117_ids, con117_votes, all_ids)
-aligned_con116 <- align_matrix(con116_ids, con116_votes, all_ids)
-aligned_con115 <- align_matrix(con115_ids, con115_votes, all_ids)
-aligned_con114 <- align_matrix(con114_ids, con114_votes, all_ids)
-aligned_con113 <- align_matrix(con113_ids, con113_votes, all_ids)
+aligned_con118 <- align_matrix_fixed(con118_ids, con118_votes, all_ids)
+aligned_con117 <- align_matrix_fixed(con117_ids, con117_votes, all_ids)
+aligned_con116 <- align_matrix_fixed(con116_ids, con116_votes, all_ids)
+aligned_con115 <- align_matrix_fixed(con115_ids, con115_votes, all_ids)
+aligned_con114 <- align_matrix_fixed(con114_ids, con114_votes, all_ids)
+aligned_con113 <- align_matrix_fixed(con113_ids, con113_votes, all_ids)
 
 
 
+```
+```{r}
+aligned_con117
 ```
 
 ```{r}
@@ -111,64 +126,44 @@ cat("aligned_con113:", dim(aligned_con113), "\n")
 
 
 
-```{r}
-# After filtering out legislators with few votes, let's add party information
-
-# Create a simple party vector (this is a placeholder - you might want to add real party data)
-# We'll assign party 1 to all legislators for now
-party_data <- data.frame(
-  id = filtered_ids,
-  party = rep(1, length(filtered_ids))
-)
-
-
-```
 
 
 
-```{r}
-# Get the legislator coordinates
-legislator_coords <- results$legislators
-
-# 1. Correlation between dimensions
-# Check if the two dimensions are correlated with each other
-dim_correlation <- cor(legislator_coords$coord1D, legislator_coords$coord2D)
-print("Correlation between dimension 1 and dimension 2:")
-print(dim_correlation)
 
 
-```
-```{r}
-
-legislator_mapping <- data.frame(
-  numeric_id = 1:length(top_legislators),
-  original_id = top_legislators
-)
-head(legislator_mapping)
-```
-```{r}
-write.csv(results$legislators, "dwnominate_results.csv", row.names = FALSE)
-write.csv(legislator_mapping, "legislator_id_mapping.csv", row.names = FALSE)
-
-```
 
 ```{r}
 # Select only the legislators from Congress 117
-con117_legislators <- con117_ids
-cat("Number of legislators in Congress 117:", length(con117_legislators), "\n")
+con118_legislators <- con118_ids
+cat("Number of legislators in Congress 117:", length(con118_legislators), "\n")
 
 # If there are more than 450, take only the first 450
-if (length(con117_legislators) > 450) {
-  con117_legislators <- con117_legislators[1:450]
+if (length(con118_legislators) > 450) {
+  con118_legislators <- con118_legislators[1:450]
 }
 
 # Re-align matrices with only these legislators
-aligned_con117_only <- align_matrix_fixed(con117_ids, con117_votes, con117_legislators)
-aligned_con116_only <- align_matrix_fixed(con116_ids, con116_votes, con117_legislators)
-aligned_con115_only <- align_matrix_fixed(con115_ids, con115_votes, con117_legislators)
-aligned_con114_only <- align_matrix_fixed(con114_ids, con114_votes, con117_legislators)
-aligned_con113_only <- align_matrix_fixed(con113_ids, con113_votes, con117_legislators)
+aligned_con118_only <- align_matrix_fixed(con118_ids, con118_votes, con118_legislators)
+aligned_con117_only <- align_matrix_fixed(con117_ids, con117_votes, con118_legislators)
+aligned_con116_only <- align_matrix_fixed(con116_ids, con116_votes, con118_legislators)
+aligned_con115_only <- align_matrix_fixed(con115_ids, con115_votes, con118_legislators)
+aligned_con114_only <- align_matrix_fixed(con114_ids, con114_votes, con118_legislators)
+aligned_con113_only <- align_matrix_fixed(con113_ids, con113_votes, con118_legislators)
+```
+```{r}
+# Let's check the dimensions after alignment
+cat("Aligned dimensions:\n")
+cat("aligned_con118:", dim(aligned_con118_only), "\n")
+cat("aligned_con117:", dim(aligned_con117_only), "\n")
+cat("aligned_con116:", dim(aligned_con116_only), "\n")
+cat("aligned_con115:", dim(aligned_con115_only), "\n")
+cat("aligned_con114:", dim(aligned_con114_only), "\n")
+cat("aligned_con113:", dim(aligned_con113_only), "\n")
+aligned_con117_only
+```
 
+
+```{r}
 # Create legis.data with party info
 legis_data <- data.frame(
   id = con117_legislators,
@@ -193,7 +188,10 @@ id_mapping_con117 <- data.frame(
   numeric_id = 1:length(con117_legislators),
   original_id = con117_legislators
 )
+```
 
+
+```{r}
 # Save the mapping
 write.csv(id_mapping_con117, "legislator_id_mapping_con117_only.csv", row.names = FALSE)
 
