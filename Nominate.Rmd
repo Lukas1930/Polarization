@@ -35,6 +35,14 @@ con116 <- read.csv("data/USA/Sparsematrix/congress116_matrix_with_ids.csv", head
 con115 <- read.csv("data/USA/Sparsematrix/congress115_matrix_with_ids.csv", header=FALSE)
 con114 <- read.csv("data/USA/Sparsematrix/congress114_matrix_with_ids.csv", header=FALSE)
 con113 <- read.csv("data/USA/Sparsematrix/congress113_matrix_with_ids.csv", header=FALSE)
+
+
+con118_party <- read.csv("data/USA/Filtered/H118_Peop_party.csv", header = TRUE)
+con117_party <- read.csv("data/USA/Filtered/H117_Peop_party.csv", header = TRUE)
+con116_party <- read.csv("data/USA/Filtered/H116_Peop_party.csv", header = TRUE)
+con115_party <- read.csv("data/USA/Filtered/H115_Peop_party.csv", header = TRUE)
+con114_party <- read.csv("data/USA/Filtered/H114_Peop_party.csv", header = TRUE)
+
 ```
 
 
@@ -162,20 +170,26 @@ cat("aligned_con113:", dim(aligned_con113_only), "\n")
 ```{r}
 # Create legis.data with party info
 legis_data <- data.frame(
-  id = con118_legislators,
-  party = rep(1, length(con118_legislators))  # Placeholder for party
+  id = con118_legislators
 )
 rownames(legis_data) <- 1:nrow(legis_data)
 
+# Match party info for each legislator from the appropriate Congress dataset
+# Assuming 'icspr' is the ID column in your party data files that matches with con118_legislators
+party_data <- con118_party[match(legis_data$id, con118_party$icpsr), "party_code"]
+legis_data$party <- party_data
 # Create rollcall objects with only the Congress 117 legislators
 rc_con118_only <- list(
-  rollcall(aligned_con117_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 117"),
-  rollcall(aligned_con116_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 116"),
-  rollcall(aligned_con115_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 115"),
-  rollcall(aligned_con114_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 114"),
-  rollcall(aligned_con113_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 113")
+  rollcall(aligned_con118_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 117"),
+  rollcall(aligned_con117_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 116"),
+  rollcall(aligned_con116_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 115"),
+  rollcall(aligned_con115_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 114"),
+  rollcall(aligned_con114_only, yea=c(1), nay=c(2), missing=c(0), legis.data=legis_data, desc="Congress 113")
 )
+```
 
+
+```{r}
 # Run DW-NOMINATE with only the Congress 117 legislators
 results_con118_only <- dwnominate(rc_con118_only, polarity=c(1,1), dims=2)
 
@@ -187,11 +201,12 @@ id_mapping_con118 <- data.frame(
 ```
 
 
+
 ```{r}
 # Save the mapping
-write.csv(id_mapping_con117, "legislator_id_mapping_con117_only.csv", row.names = FALSE)
+write.csv(id_mapping_con118, "legislator_id_mapping_con118_only.csv", row.names = FALSE)
 
 # Save the results
-write.csv(results_con117_only$legislators, "dwnominate_con117_only_results.csv", row.names = FALSE)
+write.csv(results_con118_only$legislators, "dwnominate_con118_only_results.csv", row.names = FALSE)
 ```
 
