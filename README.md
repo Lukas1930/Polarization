@@ -30,12 +30,12 @@ pip install -r requirements.txt
 ### Data Organization
 data/
 └── Denmark/
-    ├── Raw - Contains prepared Danish data
-    ├── avg_party - contains edgelists for Danish networks created using inter- party average
-        ├── results - contains the dimensionality reduction scores and polarization scores for that method
-    ├── intra_inter_part - contains edgelists for Danish networks created using inter- and intra-party agreement
-        ├── results - contains the dimensionality reduction scores and polarization scores for that method
-    └── other files containing raw information on the politicians and so on
+│    ├── Raw - Contains prepared Danish data
+│    ├── avg_party - contains edgelists for Danish networks created using inter- party average
+│        ├── results - contains the dimensionality reduction scores and polarization scores for that method
+│    ├── intra_inter_part - contains edgelists for Danish networks created using inter- and intra-party agreement
+│        ├── results - contains the dimensionality reduction scores and polarization scores for that method
+│    └── other files containing raw information on the politicians and so on
 └── USA/
     ├── Raw - Contains raw voting and member USA data
     ├── Filtered - Containes merged and prepared USA data
