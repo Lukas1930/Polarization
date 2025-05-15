@@ -10,17 +10,6 @@ This project analyzes political polarization using voting data from Denmark and 
 pip install -r requirements.txt
 ```
 
-## Dependencies
-
-- pandas >= 2.0.0
-- networkx >= 3.1
-- numpy >= 1.24.0
-- scipy >= 1.10.0
-- umap-learn >= 0.5.3
-- matplotlib >= 3.8.0
-- seaborn >= 0.13.0
-- scikit-learn >= 1.4.0
-
 ## Project Structure
 
 ### Data Collection and Preparation
