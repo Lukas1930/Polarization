@@ -31,7 +31,7 @@ This project analyzes political polarization by examining voting data from Denma
 
 ---
 
-### 📊 Analysis Notebooks
+### Analysis Notebooks
 
 | File | Description |
 |------|-------------|
