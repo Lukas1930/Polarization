@@ -28,7 +28,7 @@ pip install -r requirements.txt
 - US_opinion_plot.ipynb - Creates plots of US ideology (MDS, PCA, UMAP)
 - Modules - polarization calculation code from Hoffman et al.
 ### Data Organization
-- data/
+data/
 └── Denmark/
     ├── Raw - Contains prepared Danish data
     ├── avg_party - contains edgelists for Danish networks created using inter- party average
