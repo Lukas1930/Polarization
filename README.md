@@ -5,13 +5,7 @@ This project analyzes political polarization by examining voting data from Denma
 ---
 
 ## Setup
-
-1. Clone this repository:
-   ```bash
-   git clone <repository_url>
-   cd <repository_folder>
-   ```
-2. Install the required dependencies:
+Install the required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
